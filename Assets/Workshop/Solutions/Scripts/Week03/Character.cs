@@ -1,4 +1,4 @@
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.XR;
 
@@ -11,6 +11,7 @@ namespace Solution
         public int energy;
         public int AttackPoint;
 
+        public bool isAlive = true;
 
         // Start is called before the first frame update
         protected void GetRemainEnergy()

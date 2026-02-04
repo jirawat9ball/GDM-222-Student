@@ -26,6 +26,7 @@ namespace Solution
         public Transform floorParent;
         public Transform wallParent;
         public Transform itemPotionParent;
+        public Transform EnemyParent;
 
         [Header("Set object Count")]
         public int obsatcleCount;
