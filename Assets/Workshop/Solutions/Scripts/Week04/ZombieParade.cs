@@ -6,22 +6,22 @@ namespace Solution
 {
     public class ZombieParade : OOPEnemy
     {
-        // ใช้ LinkedList ในการจัดการส่วนของงูเพื่อประสิทธิภาพในการเพิ่ม/ลบ
-        // ใช้ LinkedList ในการจัดการส่วนของงูเพื่อประสิทธิภาพในการเพิ่ม/ลบ
+        // ๏ฟฝ๏ฟฝ LinkedList ในก๏ฟฝรจัด๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝวน๏ฟฝอง๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝอป๏ฟฝ๏ฟฝ๏ฟฝิท๏ฟฝ๏ฟฝ๏ฟฝาพในก๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ/ลบ
+        // ๏ฟฝ๏ฟฝ LinkedList ในก๏ฟฝรจัด๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝวน๏ฟฝอง๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝอป๏ฟฝ๏ฟฝ๏ฟฝิท๏ฟฝ๏ฟฝ๏ฟฝาพในก๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ/ลบ
         private LinkedList<GameObject> Parade = new LinkedList<GameObject>();
         public int SizeParade = 3;
         int timer = 0;
-        public GameObject[] bodyPrefab; // Prefab ของส่วนลำตัวงู
-        public float moveInterval = 0.5f; // ช่วงเวลาในการเคลื่อนที่ (0.5 วินาที)
+        public GameObject[] bodyPrefab; // Prefab ๏ฟฝอง๏ฟฝ๏ฟฝวน๏ฟฝำต๏ฟฝวง๏ฟฝ
+        public float moveInterval = 0.5f; // ๏ฟฝ๏ฟฝวง๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝในก๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝอน๏ฟฝ๏ฟฝ๏ฟฝ (0.5 ๏ฟฝินาท๏ฟฝ)
 
         private Vector3 moveDirection;
 
         public  void Start()
         {
             moveDirection = Vector3.up;
-            // เริ่ม Coroutine สำหรับการเคลื่อนที่
+            // ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ Coroutine ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝับ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝอน๏ฟฝ๏ฟฝ๏ฟฝ
             positionX = (int)transform.position.x;
-            positionX = (int)transform.position.y;
+            positionY = (int)transform.position.y;
             StartCoroutine(MoveParade());
         }
         private Vector3 RandomizeDirection()
@@ -36,19 +36,58 @@ namespace Solution
 
             return possibleDirections[Random.Range(0, possibleDirections.Count)];
         }
-        // Coroutine สำหรับการเคลื่อนที่ทีละช่อง
+        // Coroutine ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝับ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝอน๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝะช๏ฟฝอง
         IEnumerator MoveParade()
         {      
-            //0. สร้างหัวงู
+            Parade.AddFirst(this.gameObject);
+            //0. ๏ฟฝ๏ฟฝ๏ฟฝาง๏ฟฝ๏ฟฝวง๏ฟฝ
             while (isAlive)
             {
-                
+                LinkedListNode<GameObject> firstNode = Parade.First;
+                GameObject firstPart = firstNode.Value;
+
+                LinkedListNode<GameObject> lastNode = Parade.Last;
+                GameObject lastPart = lastNode.Value;
+
+                Parade.RemoveLast();
+
+                int toX = 0;
+                int toY = 0;
+
+                bool isIsCollision = true;
+                int countTryFind = 0;
+
+                while(isIsCollision ==true || countTryFind > 10)
+                {
+                        moveDirection = RandomizeDirection();
+                        toX = (int)(firstPart.transform.position.x + moveDirection.x);
+                        toY = (int)(firstPart.transform.position.y + moveDirection.y);
+
+                        positionX = toX;
+                        positionY = toY;
+                        isIsCollision = IsCollision(toX,toY);
+                }
+
+                lastPart.transform.position = new Vector3(positionX, positionY , 0);
+
+
+                Parade.AddFirst(lastNode);
+
+                if(Parade.Count < SizeParade)
+                {
+                    timer++;
+                    if(timer > 3)
+                    {
+                        Grow();
+                        timer = 0;
+                    }
+                }
                 yield return new WaitForSeconds(moveInterval);
             }
         }
         private bool IsCollision(int x, int y)
         {
-            // 4. ตรวจสอบสิ่งกีดขวาง
+            // 4. ๏ฟฝ๏ฟฝวจ๏ฟฝอบ๏ฟฝ๏ฟฝ่งกีด๏ฟฝ๏ฟฝาง
             if (HasPlacement(x, y))
             {
                 return true;
@@ -56,10 +95,16 @@ namespace Solution
             return false;
         }
         
-        // ฟังก์ชันสำหรับเพิ่มส่วนของงู (Grow)
+        // ๏ฟฝัง๏ฟฝ๏ฟฝัน๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝับ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝวน๏ฟฝอง๏ฟฝ๏ฟฝ (Grow)
         private void Grow()
         {
-           
+           GameObject newPart = Instantiate(bodyPrefab[0]);
+
+           GameObject lastPart = Parade.Last.Value;
+
+           newPart.transform.parent = lastPart.transform;
+
+           Parade.AddLast(newPart);
         }
 
     }
