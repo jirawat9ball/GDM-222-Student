@@ -6,106 +6,142 @@ namespace Solution
 {
     public class ZombieParade : OOPEnemy
     {
-        // �� LinkedList 㹡�èѴ�����ǹ�ͧ�����ͻ���Է���Ҿ㹡������/ź
-        // �� LinkedList 㹡�èѴ�����ǹ�ͧ�����ͻ���Է���Ҿ㹡������/ź
+        // ใช้ LinkedList เก็บ GameObject ทุกส่วนของขบวน
         private LinkedList<GameObject> Parade = new LinkedList<GameObject>();
         public int SizeParade = 3;
-        int timer = 0;
-        public GameObject[] bodyPrefab; // Prefab �ͧ��ǹ�ӵ�ǧ�
-        public float moveInterval = 0.5f; // ��ǧ����㹡������͹��� (0.5 �Թҷ�)
+        int stepCounter = 0; // เปลี่ยนชื่อจาก timer เป็น stepCounter เพื่อความเข้าใจ
+        public GameObject[] bodyPrefab; 
+        public float moveInterval = 0.5f; 
 
         private Vector3 moveDirection;
 
-        public  void Start()
+        public void Start()
         {
+            // เชื่อมต่อ MapGenerator ให้เรียบร้อย
+            mapGenerator = FindObjectOfType<OOPMapGenerator>();
+            
+            // เริ่มต้นทิศทาง
             moveDirection = Vector3.up;
-            // ����� Coroutine ����Ѻ�������͹���
-            positionX = (int)transform.position.x;
-            positionY = (int)transform.position.y;
-            StartCoroutine(MoveParade());
+            
+            // แอดตัวเอง (หัวขบวน) เข้าไปใน LinkedList เป็นตัวแรก
+            Parade.AddFirst(this.gameObject);
+            
+            if (isAlive && mapGenerator != null)
+            {
+                StartCoroutine(MoveParade());
+            }
         }
+
         private Vector3 RandomizeDirection()
         {
             List<Vector3> possibleDirections = new List<Vector3>
             {
-                Vector3.up,
-                Vector3.down,
-                Vector3.left,
-                Vector3.right
+                Vector3.up, Vector3.down, Vector3.left, Vector3.right
             };
-
             return possibleDirections[Random.Range(0, possibleDirections.Count)];
         }
-        // Coroutine ����Ѻ�������͹�����Ъ�ͧ
+
         IEnumerator MoveParade()
         {      
-            Parade.AddFirst(this.gameObject);
-            //0. ���ҧ��ǧ�
             while (isAlive)
             {
-                LinkedListNode<GameObject> firstNode = Parade.First;
-                GameObject firstPart = firstNode.Value;
-
-                LinkedListNode<GameObject> lastNode = Parade.Last;
-                GameObject lastPart = lastNode.Value;
-
-                Parade.RemoveLast();
-
+                // 1. หาตำแหน่งถัดไปโดยอ้างอิงจาก "หัวปัจจุบัน" (Node แรกสุด)
+                GameObject currentHead = Parade.First.Value;
                 int toX = 0;
                 int toY = 0;
 
-                bool isIsCollision = true;
+                bool isCollision = true;
                 int countTryFind = 0;
 
-                while(isIsCollision ==true || countTryFind > 10)
+                // สุ่มหาทางเดินจนกว่าจะเจอช่องที่ว่าง (HasPlacement == false)
+                while(isCollision && countTryFind < 10)
                 {
-                        moveDirection = RandomizeDirection();
-                        toX = (int)(firstPart.transform.position.x + moveDirection.x);
-                        toY = (int)(firstPart.transform.position.y + moveDirection.y);
+                    moveDirection = RandomizeDirection();
+                    toX = (int)(currentHead.transform.position.x + moveDirection.x);
+                    toY = (int)(currentHead.transform.position.y + moveDirection.y);
 
-                        positionX = toX;
-                        positionY = toY;
-                        isIsCollision = IsCollision(toX,toY);
+                    isCollision = IsCollision(toX, toY);
+                    countTryFind++;
                 }
 
-                lastPart.transform.position = new Vector3(positionX, positionY , 0);
-
-
-                Parade.AddFirst(lastNode);
-
-                if(Parade.Count < SizeParade)
+                // 2. ถ้าเจอทางเดินที่ไปได้
+                if (!isCollision)
                 {
-                    timer++;
-                    if(timer > 3)
+                    // กฎของเกมงู: ดึงหางมาเป็นหัว
+                    // เก็บ Reference ของโหนดหางเอาไว้
+                    LinkedListNode<GameObject> tailNode = Parade.Last;
+                    GameObject tailObject = tailNode.Value;
+
+                    // ย้ายตำแหน่งหางไปไว้ที่ตำแหน่งหัวใหม่
+                    tailObject.transform.position = new Vector3(toX, toY, 0);
+
+                    // ย้ายโหนดใน LinkedList: ดึงออกจากท้าย แล้วไปเสียบที่หน้าสุด
+                    Parade.RemoveLast();
+                    Parade.AddFirst(tailNode);
+
+                    // อัปเดตพิกัดตำแหน่งของ Object หลัก (ถ้าจำเป็นต้องใช้ในระบบ Map)
+                    positionX = toX;
+                    positionY = toY;
+
+                    // 3. ระบบเพิ่มขนาด (Grow)
+                    if (Parade.Count < SizeParade)
                     {
-                        Grow();
-                        timer = 0;
+                        stepCounter++;
+                        if (stepCounter >= 3) // เดินครบ 3 ก้าวให้เพิ่ม 1 ปล้อง
+                        {
+                            Grow();
+                            stepCounter = 0;
+                        }
                     }
                 }
+
                 yield return new WaitForSeconds(moveInterval);
             }
         }
+
         private bool IsCollision(int x, int y)
         {
-            // 4. ��Ǩ�ͺ��觡մ��ҧ
+            if (x < 0 || x >= mapGenerator.Cols || y < 0 || y >= mapGenerator.Rows)
+            {
+                return true; // ถ้าหลุดขอบ ให้ถือว่าเป็นการชน (เดินไปไม่ได้)
+            }
+
+            // 2. เช็คว่าตำแหน่งนั้นมีสิ่งกีดขวาง (กำแพง/สิ่งของ) หรือไม่
             if (HasPlacement(x, y))
             {
                 return true;
             }
+
+            foreach (GameObject part in Parade)
+            {
+                // ถ้าตำแหน่งที่จะไป ตรงกับตำแหน่งของปล้องใดๆ ในตัวมันเอง
+                if ((int)part.transform.position.x == x && (int)part.transform.position.y == y)
+                {
+                    // ข้อยกเว้น: ถ้าตำแหน่งนั้นเป็น "หาง" (Last) พอดี มักจะยอมให้เดินได้ 
+                    // เพราะหางจะถูกดึงออกไปในจังหวะที่หัวขยับเข้ามาแทนที่พอดี
+                    if (part == Parade.Last.Value) 
+                        continue; 
+
+                    return true; // ชนตัวเอง!
+                }
+             }
             return false;
         }
         
-        // �ѧ��ѹ����Ѻ������ǹ�ͧ�� (Grow)
         private void Grow()
         {
-           GameObject newPart = Instantiate(bodyPrefab[0]);
+            if (bodyPrefab.Length > 0 && bodyPrefab[0] != null)
+            {
+                // สร้างปล้องใหม่
+                GameObject newPart = Instantiate(bodyPrefab[0]);
+                
+                // สำคัญ: ปล้องใหม่ต้องเกิดที่ตำแหน่งเดียวกับ "หาง" ในปัจจุบัน 
+                // เพื่อให้รอบถัดไปมันเดินตามกันได้อย่างแนบเนียน
+                newPart.transform.position = Parade.Last.Value.transform.position;
 
-           GameObject lastPart = Parade.Last.Value;
-
-           newPart.transform.parent = lastPart.transform;
-
-           Parade.AddLast(newPart);
+                // เพิ่มเข้าไปใน LinkedList ที่ตำแหน่งท้ายสุด
+                Parade.AddLast(newPart);
+            }
         }
-
     }
 }

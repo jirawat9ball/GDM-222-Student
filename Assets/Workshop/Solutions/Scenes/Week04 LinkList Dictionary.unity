@@ -128,6 +128,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 366290751}
+  - component: {fileID: 366290752}
   m_Layer: 0
   m_Name: Enemy
   m_TagString: Untagged
@@ -150,6 +151,29 @@ Transform:
   m_Children: []
   m_Father: {fileID: 2186379283630356992}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &366290752
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 366290750}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 42a36e9ee0959e5458abcbc5f1964d98, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Solution.ZombieParade
+  Name: 
+  positionX: 0
+  positionY: 0
+  mapGenerator: {fileID: 2186379283630356993}
+  energy: 0
+  AttackPoint: 0
+  isAlive: 1
+  SizeParade: 3
+  bodyPrefab:
+  - {fileID: 5258361076467758692, guid: e990ab1c33129e94f875df0ca7e85075, type: 3}
+  moveInterval: 0.5
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -319,8 +343,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 888860282}
-  - component: {fileID: 888860281}
   - component: {fileID: 888860280}
+  - component: {fileID: 888860283}
   m_Layer: 0
   m_Name: Zombie Parade
   m_TagString: Untagged
@@ -343,14 +367,30 @@ MonoBehaviour:
   Name: 
   positionX: 0
   positionY: 0
-  mapGenerator: {fileID: 0}
+  mapGenerator: {fileID: 2186379283630356993}
   energy: 0
   AttackPoint: 0
   isAlive: 1
-  SizeParade: 3
-  bodyPrefab: []
+  SizeParade: 5
+  bodyPrefab:
+  - {fileID: 5258361076467758692, guid: e990ab1c33129e94f875df0ca7e85075, type: 3}
   moveInterval: 0.5
---- !u!212 &888860281
+--- !u!4 &888860282
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 888860279}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 3, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!212 &888860283
 SpriteRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -397,7 +437,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300024, guid: fbe1e7b94bb1a4a099d5bcb15a00141c, type: 3}
+  m_Sprite: {fileID: 21300012, guid: fbe1e7b94bb1a4a099d5bcb15a00141c, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -408,21 +448,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!4 &888860282
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 888860279}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &2186379283630356991
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -616,6 +641,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 2592881412648572649, guid: 896fac2834903504f8973b3186300203, type: 3}
   m_PrefabInstance: {fileID: 2186379283630356991}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &2186379283630356993 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8365133027701863277, guid: 896fac2834903504f8973b3186300203, type: 3}
+  m_PrefabInstance: {fileID: 2186379283630356991}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b1ea12672d43a5547bca6d7ccbe75775, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
