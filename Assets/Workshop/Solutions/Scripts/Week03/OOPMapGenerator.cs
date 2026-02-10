@@ -41,6 +41,7 @@ namespace Solution
 
         public OOPPlayer playerScript;
         public OOPExit exitScript;
+        public OOPWall wallScript;
         // block types ...
         [HideInInspector]
         public string empty = "";
@@ -86,7 +87,9 @@ namespace Solution
 
             GameObject exit = PlaceObject(Rows-1, Cols-1, Exit.gameObject, null);
             exitScript = exit.GetComponent<OOPExit>();
-
+            
+            GameObject wall = PlaceObject(Rows-1, Cols-1, wallsPrefab[0], null);
+            wallScript = wall.GetComponent<OOPWall>();
             int count = 0;
 
             int preventInfiniteLoop = 100;
@@ -145,7 +148,12 @@ namespace Solution
 
         public Identity GetMapData(float x, float y)
         {
-            if (x >= Rows || x < 0 || y >= Cols || y < 0) return null;
+            
+            if (x >= Rows || x < 0 || y >= Cols || y < 0)
+            {
+                Debug.Log("Cell" + x + y);
+                return wallScript;
+            } 
             return mapdata[(int)x, (int)y];
         }
 
